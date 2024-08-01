@@ -20,24 +20,34 @@
 
 1、UnityEngine的GUI的Window函数有问题，出错原因是python函数无法转换成C#函数。请使用GUI.BeginClip()和GUI.EndClip()替换GUI.Window()函数的功能
 
-2、pythonnet3.0.3导入Assembly-CSharp.dll有问题，出错原因是戴森球计划游戏的功能类都是没有命名空间的，dll导入后，这些没有命名空间的类会被跳过，没有进行python3绑定，所以没法像import UnityEngine as ue这样方便调用，您需要使用反射等方式，单独调用这些类型。
+~~2、pythonnet3.0.3导入Assembly-CSharp.dll有问题，出错原因是戴森球计划游戏的功能类都是没有命名空间的，dll导入后，这些没有命名空间的类会被跳过，没有进行python3绑定，所以没法像import UnityEngine as ue这样方便调用，您需要使用反射等方式，单独调用这些类型。~~
 
-（笔者修改代码，使得这些没有空间的类加入处理队列，但还是遇到模块里没有这些类的python报错，说明这个处理在pythonnet中可能更加底层，不是笔者简单改改能起作用的）。
+~~（笔者修改代码，使得这些没有空间的类加入处理队列，但还是遇到模块里没有这些类的python报错，说明这个处理在pythonnet中可能更加底层，不是笔者简单改改能起作用的）。~~
 
-使用Assembly-CSharp.dll里这些没有命名空间的类型，参考代码如下，代码仅演示属性调用，函数调用是另外的代码。
+~~使用Assembly-CSharp.dll里这些没有命名空间的类型，参考代码如下，代码仅演示属性调用，函数调用是另外的代码。~~
 
-这些调用很繁琐，没有像有命名空间的类型那样直接import调用方便。
+~~这些调用很繁琐，没有像有命名空间的类型那样直接import调用方便。~~
 
-期待pythonnet能早日支持这些没有命名空间的类型自动进行python3绑定，不要在这么繁琐的调用，这一点也不python啊，把他们自动处理进GlobalAssembly空间也行啊~~~
+~~期待pythonnet能早日支持这些没有命名空间的类型自动进行python3绑定，不要在这么繁琐的调用，这一点也不python啊，把他们自动处理进GlobalAssembly空间也行啊~~
 
-```
+```python
 import clr
 from System import Console
 dll = clr.AddReference("Assembly-CSharp.dll")
-
 LDB = dll.GetType("LDB")
 items = LDB.GetProperty("items").GetValue(None)
 for i in items.dataArray:
+    Console.WriteLine(i.Name)
+```
+
+2、经过测试，发现戴森球计划游戏中Assembly-CSharp.dll里面这些没有命名空间的类，pythonnet3.0.3也自动绑定到python311了，只需要简单的LDB = clr.LDB 一行代码就可以直接调用，和import UnityEngine as ue这样方便调用，这样编写脚本的环境基础就齐活了。[掩嘴笑]
+
+```python
+import clr
+from System import Console
+dll = clr.AddReference("Assembly-CSharp.dll")
+LDB = clr.LDB
+for i in LDB.items.dataArray:
     Console.WriteLine(i.Name)
 ```
 
@@ -52,7 +62,7 @@ for i in items.dataArray:
 
 （游戏运行时由unityaot改unityJIT才是运行python3的重点，而且我测试，游戏本体和mod都能正常运行（这可能和我测试的mod较少有关[掩嘴笑]））
 
-2、初始化python3环境，经过测试好像只能在Awake()和Start()函数里进行，在Update()里初始化，会出错，可能和主线程相关限制有关，这个不清楚。
+2、初始化python3环境，经过测试好像只能在Start()函数里进行（Awake()没测试过，不清楚），在Update()里初始化，会出错，可能和主线程相关限制有关，这个不清楚。
 
 3、下载Unity2018.4.12f1的SDK。
 
