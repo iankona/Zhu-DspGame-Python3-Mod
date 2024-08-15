@@ -18,16 +18,12 @@ from HarmonyLib import Traverse
 # }
 
 
-显示标签 = False
+屏幕位置 = Vector2.zero
 显示文本 = ""
-百分比 = 0.0
-屏幕位置 = Vector3.zero
-
 按住时间 = 1.5
 
 
 def 函数():
-    global 显示标签, 屏幕位置
     if UIRoot.instance == None: return
     if GameMain.mainPlayer == None: return
     if GameMain.sandboxToolsEnabled == True: return
@@ -36,66 +32,76 @@ def 函数():
     starmap = UIRoot.instance.uiGame.starmap
 
     if Input.GetMouseButtonDown(1): # 右键按下
-        显示标签 = True
-        屏幕位置.x = Input.mousePosition.x
-        屏幕位置.y = Screen.height - Input.mousePosition.y
         starmap.screenCameraController.SetRotationLock(False)
-        Traverse.Create(starmap).Method("ResetRightClickFastTravelVars").GetValue() # starmap.ResetRightClickFastTravelVars()
-        Traverse.Create(starmap).Field("fastTravelRightDownMousePos").SetValue(Input.mousePosition)
+        MousePositionTo屏幕坐标(Input.mousePosition)
+        ResetRightClickFastTravelVars()
+        SetFastTravelRightDownMousePos(Input.mousePosition)
+        CalcRightClickFastTravelTarget(Input.mousePosition)
         starmap.fastTravelRightPressing = True
 
-    if Input.GetMouseButton(1): # 右键按住
-        显示标签 = True
-        fastTravelRightDownMousePos = Traverse.Create(starmap).Field("fastTravelRightDownMousePos").GetValue()
-        starmap.fastTravelRightPressing = True
+    if Input.GetMouseButton(1) and starmap.fastTravelRightPressing: # 右键按住 
         starmap.fastTravelRightDownTime += Time.deltaTime
-        if (Input.mousePosition - fastTravelRightDownMousePos).sqrMagnitude > 64.0 and starmap.fastTravelRightDownTime < 0.0:
-            显示标签 = False
-            starmap.fastTravelRightPressing = False
+        更新显示文本()
+        rightMousePosition = GetFastTravelRightDownMousePos()
+        if (Input.mousePosition - rightMousePosition).sqrMagnitude > 64.0: ResetRightClickFastTravelVars()
 
     if Input.GetMouseButtonUp(1): #
-        显示标签 = False
-        Traverse.Create(starmap).Method("ResetRightClickFastTravelVars").GetValue() # starmap.ResetRightClickFastTravelVars()
+        ResetRightClickFastTravelVars()
 
-    if starmap.fastTravelRightPressing and starmap.fastTravelRightDownTime > 0.0:
-        Locic()
-
-    if starmap.fastTravelRightDownTime > 按住时间 and starmap.fastTravelRightDownTime < 按住时间+1.0:
-        显示标签 = False
+    if starmap.fastTravelRightDownTime > 按住时间 and starmap.fastTravelRightPressing:
         DoRightClickFastTravel()
+        ResetRightClickFastTravelVars()
 
-    if starmap.fastTravelRightDownTime > 按住时间+1.0:
-        Traverse.Create(starmap).Method("ResetRightClickFastTravelVars").GetValue() # starmap.ResetRightClickFastTravelVars()
-
+    
+def 更新显示文本():
+    global 显示文本
+    starmap = UIRoot.instance.uiGame.starmap
+    target, targetStar, targetPlanet = GetTargetStarPlanet()
+    百分比 = (int)(starmap.fastTravelRightDownTime / 按住时间 * 100)
+    if 百分比 < 0  : 百分比 = 0
+    if 百分比 > 100: 百分比 = 100
+    if targetPlanet != None:
+        显示文本 = f"准备快速传送\n目标行星：{targetPlanet.displayName}\n进度：{百分比}%"
+    elif targetStar != None:
+        显示文本 = f"准备快速传送\n目标星系：{targetStar.displayName}\n进度：{百分比}%"
+    else:
+        显示文本 = f"准备快速传送\n目标位置：深空 [{int(target.x)}, {int(target.y)}, {int(target.z)}] \n进度：{百分比}%"
     
 
 
+def MousePositionTo屏幕坐标(mousePosition:Vector3):
+    global 屏幕位置
+    屏幕位置.x = mousePosition.x                 # 屏幕位置.x = Input.mousePosition.x
+    屏幕位置.y = Screen.height - mousePosition.y # 屏幕位置.y = Screen.height - Input.mousePosition.y
 
-def Locic():
-    global 百分比, 显示文本
+
+def ResetRightClickFastTravelVars():
     starmap = UIRoot.instance.uiGame.starmap
+    Traverse.Create(starmap).Method("ResetRightClickFastTravelVars").GetValue() # starmap.ResetRightClickFastTravelVars()
 
-    Traverse.Create(starmap).Method("CalcRightClickFastTravelTarget", [Input.mousePosition]).GetValue()
 
-    target, targetStar, targetPlanet = _target(), _targetStar(), _targetPlanet()
+def SetFastTravelRightDownMousePos(mousePosition):
+    starmap = UIRoot.instance.uiGame.starmap
+    Traverse.Create(starmap).Field("fastTravelRightDownMousePos").SetValue(Input.mousePosition)
 
-    百分比 = (int)(starmap.fastTravelRightDownTime / 按住时间 * 100)
-    if 百分比 > 100: 百分比 = 100
 
-    if targetPlanet != None:
-        显示文本 = f"准备快速传送\n目标行星：{targetPlanet.displayName}\n进度：{百分比}%"
-        target = targetPlanet.uPosition
-    elif targetStar != None:
-        显示文本 = f"准备快速传送\n目标星系：{targetStar.displayName}\n进度：{百分比}%"
-        target = targetStar.uPosition
-    else:
-        显示文本 = f"准备快速传送\n目标位置：深空（{target}）\n进度：{百分比}%"
+def GetFastTravelRightDownMousePos():
+    starmap = UIRoot.instance.uiGame.starmap
+    result = Traverse.Create(starmap).Field("fastTravelRightDownMousePos").GetValue()
+    return result
+
+
+def CalcRightClickFastTravelTarget(mousePosition) -> bool: # Vector3
+    starmap = UIRoot.instance.uiGame.starmap
+    calcflag = Traverse.Create(starmap).Method("CalcRightClickFastTravelTarget", [mousePosition]).GetValue()
+    return calcflag
+
+
 
 
 def DoRightClickFastTravel():
     starmap = UIRoot.instance.uiGame.starmap
-
-    target, targetStar, targetPlanet = _target(), _targetStar(), _targetPlanet()
+    target, targetStar, targetPlanet = GetTargetStarPlanet()
     if targetPlanet != None:
         starmap.SetViewStar(targetStar)
         starmap.screenCameraController.SetViewTarget(targetPlanet, None, None, GameMain.mainPlayer, VectorLF3.zero, 0.2, 1.0, False, False)
@@ -120,27 +126,21 @@ def StartFastTravelToUPosition(uPos): # VectorLF3
 
 
 
-def _target():
+def GetTargetStarPlanet():
     starmap = UIRoot.instance.uiGame.starmap
     target = Traverse.Create(starmap).Field("fastTravelRightTarget").GetValue()
-    return target
-
-def _targetStar():
-    starmap = UIRoot.instance.uiGame.starmap
     targetStar = Traverse.Create(starmap).Field("fastTravelRightTargetStar").GetValue()
-    return targetStar
-
-def _targetPlanet():
-    starmap = UIRoot.instance.uiGame.starmap
     targetPlanet = Traverse.Create(starmap).Field("fastTravelRightTargetPlanet").GetValue()
-    return targetPlanet
+    return target, targetStar, targetPlanet
 
 
 def ImGUI():
-    if 显示标签 == False: return  
-    rect = Rect(屏幕位置.x + 20, 屏幕位置.y - 80, 500, 80)
+    starmap = UIRoot.instance.uiGame.starmap
+    if starmap.fastTravelRightPressing == False: return  
+
+    rect = Rect(屏幕位置.x + 20, 屏幕位置.y - 100, 500, 100)
 
     labelStyle = GUIStyle(GUI.skin.label)
-    labelStyle.fontSize = 18
+    labelStyle.fontSize = 20
 
     GUI.Label(rect, 显示文本, labelStyle)
