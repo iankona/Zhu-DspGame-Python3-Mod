@@ -1,32 +1,12 @@
 
-from . import 解锁科技与添加物品
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+from . import 电磁学
 
 
 def Start():
     pass
 
 def Update():
-    解锁科技与添加物品.函数()
+    电磁学.函数()
 
 
 def OnGUI():
