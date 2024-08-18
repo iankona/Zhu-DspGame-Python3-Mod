@@ -4,15 +4,15 @@ import importlib
 
 
 import clr
-from System import Console , ConsoleColor
+from System import Console #, ConsoleColor
 class NetConsole:
     def __init__(self):
         pass
     def write(self, message): # 1个print(), 调用2次write()
         if message == '\n': return
-        Console.ForegroundColor = ConsoleColor.DarkGreen # 不起作用
+        # Console.ForegroundColor = ConsoleColor.DarkGreen # 不起作用
         Console.WriteLine('[Py   :   Console]  ' + message)
-        Console.ResetColor()
+        # Console.ResetColor()
         
     def flush(self):
         pass
@@ -50,7 +50,7 @@ def 模块加载():
             模块列表.append(module)
             print(f"Python模块：'{name}' 加载成功 ... ")
         except Exception as e:
-            print(f"Python模块：'{name}' 加载出错 !!! ")
+            print(f"Python模块：'{name}' 加载出错 ??? ??? ")
             print(e)
 
 
@@ -63,7 +63,7 @@ def 模块重载():
             模块列表.append(module)
             print(f"Python模块：'{name}' 重载成功 ... ")
         except Exception as e:
-            print(f"Python模块：'{name}' 重载出错 !!! ")
+            print(f"Python模块：'{name}' 重载出错 ??? ??? ")
             print(e)
 
 
@@ -93,14 +93,6 @@ def OnGUI():
             module.OnGUI()
         except Exception as e:
             print(e)
-
-
-
-
-
-
-
-
 
 
 
