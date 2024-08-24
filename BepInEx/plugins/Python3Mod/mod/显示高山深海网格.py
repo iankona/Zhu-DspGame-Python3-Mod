@@ -31,11 +31,10 @@ def 修改网格高低(__instance):
 
 
 修改颜色 = False
-buildColor = Color(0.07, 0.34, 0.17, 1.0)
 def 修改网格颜色(__instance):
     global 修改颜色
     if 修改颜色: return
-    __instance.buildColor = buildColor # 会闪烁？？？ # 不能重新赋值，可能在其他地方被引用了，所以只能修改原有对象的值
+    __instance.buildColor = Color(0.07, 0.34, 0.17, 1.0) # 会闪烁？？？
     # __instance.buildColor.r = 0.17 # 修改不起作用
     # __instance.buildColor.g = 0.25 
     # __instance.buildColor.b = 0.17
