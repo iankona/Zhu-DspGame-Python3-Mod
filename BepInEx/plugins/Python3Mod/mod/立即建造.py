@@ -40,7 +40,7 @@ def Prefix(__instance):
             if protoId in 建筑列表: 
                 drone.stage = 3
                 __instance.drones.buffer[i] = drone # 搞不定， ref DroneComponent drone = ref __instance.drones.buffer[index1]; 
-
+    return True
 
 # 1131, # 地基
 # 2001, # 低速传送带
