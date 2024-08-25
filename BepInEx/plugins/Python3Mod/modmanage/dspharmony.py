@@ -14,6 +14,7 @@ harmony = Harmony(GUID)
 
 def 保存程序集():
     程序集.Save(程序集名称 + ".dll")
+    print(f"保存程序集：{程序集名称}.dll")
 
 
 类型列表 = []
@@ -73,7 +74,7 @@ def 新建后置函数默认(dsptype, targetname:str, postfixfunc=None):
     字段名称 = f"action{targetname}Postfix"
     后置字段 = 类型.DefineField(字段名称, System.Action[dsptype], FieldAttributes.Public| FieldAttributes.Static) 
 
-    后置方法 = 类型.DefineMethod("函数", MethodAttributes.Public|MethodAttributes.Static, System.Void, [dsptype]) 
+    后置方法 = 类型.DefineMethod("函数", MethodAttributes.Public| MethodAttributes.Static, System.Void, [dsptype]) 
     后置方法.DefineParameter(1, getattr(ParameterAttributes, "None"), "__instance") # ParameterAttributes.None
     IL = 后置方法.GetILGenerator()
     IL.Emit(OpCodes.Ldsfld, 后置字段)
