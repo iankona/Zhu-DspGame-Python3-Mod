@@ -11,7 +11,16 @@ class 程序集类型:
         self.methods = self.type.GetMethods()
         self.methoddict = {}
         for method in self.methods: self.methoddict[f"{method}"] = method
-        
+
+
+    def SetType(self, typename=""):
+        self.type = self.assemly.GetType(typename)
+        self.methods = self.type.GetMethods()
+        self.methoddict = {}
+        for method in self.methods: self.methoddict[f"{method}"] = method
+        return self.type
+
+
     def FindMethod(self, methodname=""):
         列表 = []
         for key, value in self.methoddict.items():
@@ -26,6 +35,8 @@ class 程序集类型:
     def GetType(self, typename=""):
         return self.assemly.GetType(typename)
     
+
+
     def PrintType(self, typename=""):
         runtype = self.GetType(typename)
         print(runtype)
