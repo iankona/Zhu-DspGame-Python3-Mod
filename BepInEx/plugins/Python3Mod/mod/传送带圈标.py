@@ -59,11 +59,13 @@ def SetTeleportPercent(percent): # 百分比
         return
     teleportGizmo0.percent = percent
 
+
 def SetTeleportPosition(pos, planet): # 百分比
     if pos == Vector3.zero: return # [Warning: Unity Log] bad query # [Info   : Unity Log] Look rotation viewing vector is zero
     if teleportGizmo0 == None: SetTeleportGizmo(pos)
         
-    height = planet.data.QueryHeight(pos)
+    # height = planet.data.QueryHeight(pos) # 原始地面高度 Query：查询
+    height = planet.data.QueryModifiedHeight(pos) # 修改后的地面高度
     pos = pos.normalized * height
 
     teleportGizmo0.gameObject.SetActive(True)
