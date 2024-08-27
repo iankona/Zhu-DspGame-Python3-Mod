@@ -2,7 +2,7 @@
 
 from dsptype import PlanetAlgorithm, PlanetAlgorithm13, EPlanetType, VeinData, DotNet35Random, EVeinType, PlanetModelingManager
 
-from UnityEngine import Vector3
+from UnityEngine import Vector3, Quaternion
 
 
 
@@ -56,7 +56,7 @@ def 置矿组随机位置列表(planet, 矿组间隔, num_left, num_right):
     新增矿组位置列表 = []
     for i in range(矿组数):
         for j in range(10000):
-            位置1 = Vector3(取随机浮点数一值(), 取随机浮点数一值(), 取随机浮点数一值()).normalized * planet.radius
+            位置1 = Vector3(取左右浮点数一值(), 取左右浮点数一值(), 取左右浮点数一值()).normalized * planet.radius
             原有都大于 = 布尔都大于间隔(原有矿脉位置列表, 位置1, planet.radius, 矿组间隔)
             新增都大于 = 布尔都大于间隔(新增矿组位置列表, 位置1, planet.radius, 矿组间隔)
             if 原有都大于 and 新增都大于:
@@ -69,10 +69,12 @@ def 置矿组随机位置列表(planet, 矿组间隔, num_left, num_right):
 dotNet35Random = DotNet35Random(System.Guid.NewGuid().GetHashCode()) #  dotNet35Random1.NextDouble() 0~1
 def 取随机浮点数():
     return dotNet35Random.NextDouble()
-def 取随机浮点数一值():
-    return dotNet35Random.NextDouble() * 2.0 - 1.0  # [0, 1] -> [-1, +1] 
 def 取随机浮点数大值(right):
-    return dotNet35Random.NextDouble() * right - right/2 
+    return dotNet35Random.NextDouble() * right
+def 取左右浮点数一值():
+    return dotNet35Random.NextDouble() * 2.0 - 1.0  # [0, 1] -> [0, 2] -> [-1, +1] 
+def 取左右浮点数大值(right):
+    return dotNet35Random.NextDouble() * right * 2 - right  # [0, 1] -> [0, 2*right] -> [-right, right] 
 
 
 
@@ -81,10 +83,16 @@ def 取随机数(num_left, num_right):
     return 随机类.Next(num_left, num_right)
     
 
-def 取随机范围(矿脉数, 矿脉间隔):
+def 取随机半径(矿脉数, 矿脉间隔):
     数量 = System.Math.Sqrt(矿脉数) + 1.0
-    right = 数量 * 矿脉间隔
-    return right
+    直径 = 数量 * 矿脉间隔
+    return 直径 / 2
+
+
+def 取随机直径(矿脉数, 矿脉间隔):
+    数量 = System.Math.Sqrt(矿脉数) + 1.0
+    直径 = 数量 * 矿脉间隔
+    return 直径
 
 
 
@@ -102,16 +110,42 @@ def 置矿脉随机位置列表(position, planet, 矿脉间隔, num_left, num_ri
     矿脉数 = 取随机数(num_left, num_right)
     新增矿脉位置列表 = []
     新增矿脉位置列表.append(position)
-    right = 取随机范围(矿脉数, 矿脉间隔)
+    半径 = 取随机半径(矿脉数, 矿脉间隔)
     for i in range(矿脉数):
         for j in range(10000):
-            位置1 = position + Vector3(取随机浮点数大值(right), 取随机浮点数大值(right), 取随机浮点数大值(right))
+            位置1 = position + Vector3(取左右浮点数大值(半径), 取左右浮点数大值(半径), 取左右浮点数大值(半径))
             位置1 = 位置1.normalized * planet.radius
             都大于 = 布尔都大于间隔(新增矿脉位置列表, 位置1, planet.radius, 矿脉间隔)
             if 都大于:
                 新增矿脉位置列表.append(规整矿脉位置(新增矿脉位置列表, 位置1, 矿脉间隔))
                 break
     return 新增矿脉位置列表
+
+
+
+def 置矿脉三角位置列表(position, planet, 矿脉间隔, num_left, num_right):
+    # sin(x), [-2, 2] -> [-1, 1],   con(x), [0, 4] -> [-1,  1],   tan(0.785) = 1, [-0.785, 0.785] -> [-1, 1]
+    矿脉数 = 取随机数(num_left, num_right)
+    # rotation = Quaternion.FromToRotation(Vector3.up, position.normalized)
+    # vector3_1 = rotation * Vector3.right
+    # vector3_2 = rotation * Vector3.forward
+    新增矿脉位置列表 = []
+    新增矿脉位置列表.append(position)
+    半径 = 取随机半径(矿脉数, 矿脉间隔)
+    for i in range(矿脉数):
+        for j in range(10000):
+            x = System.Math.Sin(取左右浮点数大值(2)) * 半径 
+            y = System.Math.Cos(取随机浮点数大值(4)) * 半径 
+            z = System.Math.Tan(取左右浮点数大值(0.785)) * 半径 
+            位置1 = position + Vector3(x, y, z)
+            位置1 = 位置1.normalized * planet.radius
+            都大于 = 布尔都大于间隔(新增矿脉位置列表, 位置1, planet.radius, 矿脉间隔)
+            if 都大于:
+                新增矿脉位置列表.append(规整矿脉位置(新增矿脉位置列表, 位置1, 矿脉间隔))
+                break
+    return 新增矿脉位置列表
+
+
 
 
 
@@ -173,7 +207,8 @@ def 添加煤炭(planet):
     vein = VeinData()
     for position in 矿组随机位置列表:
         矿组有添加 = False
-        矿脉随机位置列表 = 置矿脉随机位置列表(position, planet, 1.9, 5, 27)
+        # 矿脉随机位置列表 = 置矿脉随机位置列表(position, planet, 1.9, 5, 27)
+        矿脉随机位置列表 = 置矿脉三角位置列表(position, planet, 1.9, 5, 27)
         for vec1 in 矿脉随机位置列表:
             vec1_height = planet.data.QueryHeight(vec1)
             if vec1_height >= planet.radius:
