@@ -48,9 +48,9 @@ def 模块加载():
         try:
             module = importlib.import_module(name)
             模块列表.append(module)
-            print(f"Python模块：'{name}' 加载成功 ... ")
+            print(f"Python模块：加载成功 ... '{name}' ... ")
         except Exception as e:
-            print(f"Python模块：'{name}' 加载出错 ??? ??? ")
+            print(f"Python模块：加载出错 ??? '{name}' ??? ")
             print(e)
 
 
@@ -61,9 +61,9 @@ def 模块重载():
         try:
             module = importlib.reload(name)
             模块列表.append(module)
-            print(f"Python模块：'{name}' 重载成功 ... ")
-        except Exception as e:
-            print(f"Python模块：'{name}' 重载出错 ??? ??? ")
+            print(f"Python模块：重载成功 ... '{name}'  ... ")
+        except Exception as e: 
+            print(f"Python模块：重载出错 ??? '{name}'  ??? ")
             print(e)
 
 
