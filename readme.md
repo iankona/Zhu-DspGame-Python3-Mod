@@ -4,21 +4,19 @@
 
 ### 一、使用教程
 
-1、把戴森球计划（Dyson Sphere Program Game）安装目录里的DSPGAME_Data\Managed文件夹复制一份，用于备份。
+1、把戴森球计划（Dyson Sphere Program Game）安装目录里的DSPGAME_Data\Managed文件夹复制一份，进行备份。
 
-2、把这里的Managed里的所有dll复制到戴森球计划安装目录里的DSPGAME_Data\Managed文件夹，覆盖掉原来的dll，使游戏由原来的Unity2018.4.12f1_unityaot运行时变成Unity2018.4.12f1_unityjit运行时。经测试原来的aot运行时mod依然能正常使用，但如果出现问题，请把备份的原游戏的Managed复制回去。
+2、即先备份原来的mscorlib.dll，再把这里的Managed里的mscorlib.dll复制到戴森球计划安装目录里的DSPGAME_Data\Managed文件夹，覆盖掉原来的dll，使游戏由原来的Unity2018.4.12f1_unityaot运行时变成Unity2018.4.12f1_unityjit运行时。如果出现问题，请把备份的原游戏的Managed复制回去，并删除mod。（戴森球计划自带的mscorlib.dll运行时运行python3会出错的原因，是没有实现System.AppDomain的相关函数如System.AppDomain.DefineDynamicAssembly）
 
-3、安装戴森球计划python3Mod插件。把这里的BepInEx文件复制到游戏安装目录下就行。
+3、戴森球计划安装python3。把这里的BepInEx文件夹复制到游戏安装目录下就行。
 
-4、安装python3Mod，把python3Mod库或脚本放到安装好后的插件文件里面的mod文件夹里。
-
-5、启用python3Mod，编辑安装好后的插件文件里面的modmanage文件夹里的manage.py文件，import您编写的脚本，然后在manage.py文件里Start()、Update()和OnGUI()三个函数里添加您的对应的运行函数即可。
+4、安装python3脚本，把写好的脚本放到BepInEx\plugins\python3\mod文件夹里就行。注意您编写的脚本，需要包含Start()、Update()和OnGUI()这三个函数，至少是pass函数体。
 
 
 
 ### 二、已知问题
 
-1、UnityEngine的GUI的Window函数有问题，出错原因是python函数无法转换成C#函数。请使用GUI.BeginClip()和GUI.EndClip()替换GUI.Window()函数的功能
+1、~~UnityEngine的GUI的Window函数有问题，出错原因是python函数无法转换成C#函数。请使用GUI.BeginClip()和GUI.EndClip()替换GUI.Window()函数的功能~~。可以使用System.Reflection.Emit编写IL代码，再把python函数代理进去IL代码块运行即可，详细可以参考mod里dspharmony.py文件
 
 ~~2、pythonnet3.0.3导入Assembly-CSharp.dll有问题，出错原因是戴森球计划游戏的功能类都是没有命名空间的，dll导入后，这些没有命名空间的类会被跳过，没有进行python3绑定，所以没法像import UnityEngine as ue这样方便调用，您需要使用反射等方式，单独调用这些类型。~~
 
@@ -111,7 +109,7 @@ python-3.11.9-embed-amd64.zip
 
 ### 四、感谢老天爷恩赐
 
-这次能发现戴森球计划运行python3Mod的正确途径，纯属意外，全靠老天爷恩赐。
+这次能发现戴森球计划运行python3的正确途径，纯属意外，全靠老天爷恩赐。
 
 我在ironpython2、ironpython3和pythonnet之间来回测试，一般都会删除掉BepInex插件文件夹里的测试dll（毕竟会报错）。那天我测试ironpython3，试了好几个处理，都是报错和平台不支持，我查找网页看到说，unity有2套运行时，为了stream上传要求的64位程序，厂商才会选用aot编译及发布。然后我突发奇想，报错既然是平台不支持，而unity的运行时是有2套，一套是aot，一套是jit。游戏的是aot运行时，会不会只要改下平台，ironpython3就能正常运行。所以我覆盖了一下游戏dll，但结果出来的是正确的python3结果，把我意外了，我查了下，原来是我dll忘删了。
 
