@@ -18,7 +18,7 @@
 
 1、~~UnityEngine的GUI的Window函数有问题，出错原因是python函数无法转换成C#函数。请使用GUI.BeginClip()和GUI.EndClip()替换GUI.Window()函数的功能~~。
 
-可以使用System.Reflection.Emit编写IL代码，再把python函数代理进去IL代码块运行即可，详细可以参考mod里dspharmony.py文件
+可以用python编写System.Reflection.Emit的IL代码，再把python函数代理进去IL代码块运行即可，详细可以参考mod里dspharmony.py文件，这些操作都可以在python中进行，无需编写和编译C#代码。
 
 ~~2、pythonnet3.0.3导入Assembly-CSharp.dll有问题，出错原因是戴森球计划游戏的功能类都是没有命名空间的，dll导入后，这些没有命名空间的类会被跳过，没有进行python3绑定，所以没法像import UnityEngine as ue这样方便调用，您需要使用反射等方式，单独调用这些类型。~~
 
