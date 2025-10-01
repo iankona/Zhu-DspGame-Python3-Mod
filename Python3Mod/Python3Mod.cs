@@ -12,7 +12,6 @@ using System.Text;
 using Python.Runtime;
 using System.IO;
 
-
 namespace PythonNetMod
 {
     [BepInPlugin(GUID, NAME, VERSION)]
@@ -21,19 +20,19 @@ namespace PythonNetMod
     {
         public const string GUID = "cn.zhufile.dsp.zhu_python3_mod";
         public const string NAME = "Python3Mod";
-        public const string VERSION = "0.8.1";
+        public const string VERSION = "0.8.3";
         private const string GAME_PROCESS = "DSPGAME.exe";
 
         public void Start() 
         {
-            Runtime.PythonDLL = ".\\BepInEx\\plugins\\python3\\python3embed\\python313.dll";
+            Runtime.PythonDLL = ".\\BepInEx\\plugins\\python3\\python-3.13.7-embed-amd64\\python313.dll";
             PythonEngine.Initialize();
             using (Py.GIL())
             {
                 dynamic sys = Py.Import("sys");
-                sys.path.append(".\\BepInEx\\plugins\\python3\\python3libs"); //sys.path.append(Path.GetFullPath(".\\BepInEx\\plugins\\Python3Mod\\libs"));
+                sys.path.append(".\\BepInEx\\plugins\\python3\\lib"); //sys.path.append(Path.GetFullPath(".\\BepInEx\\plugins\\Python3Mod\\libs"));
                 sys.path.append(".\\BepInEx\\plugins\\python3\\mod");
-                sys.path.append(".\\BepInEx\\plugins\\python3\\modmanage");
+                sys.path.append(".\\BepInEx\\plugins\\python3\\manage");
             }
             using (Py.GIL())
             {
