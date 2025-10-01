@@ -36,6 +36,6 @@ for i in LDB.items.dataArray:
 
 以前能发现戴森球计划运行python3的正确途径，纯属意外，全靠老天爷恩赐。
 
-我在ironpython2、ironpython3和pythonnet之间来回测试，一般都会删除掉BepInex插件文件夹里的测试dll（毕竟会报错）。那天我测试ironpython3，试了好几个处理，都是报错和平台不支持，我查找网页看到说，unity有2套运行时，为了stream上传要求的64位程序，厂商才会选用aot编译及发布。然后我突发奇想，报错既然是平台不支持，而unity的运行时是有2套，一套是aot，一套是jit。游戏的是aot运行时，会不会只要改下平台，ironpython3就能正常运行。
+我在ironpython2、ironpython3和pythonnet之间来回测试，一般都会删除掉BepInex插件文件夹里的测试dll（毕竟会报错）。那天我测试ironpython3，试了好几个处理，都是报错和平台不支持，我查找网页看到说，unity有2套运行时，为了stream上传要求的64位程序，厂商才会选用aot编译及发布。然后我突发奇想，报错既然是平台不支持，而unity的运行时是有2套，一套是aot，一套是jit。游戏的是aot运行时，会不会只要改下平台，ironpython3就能正常运行。结果出人意料，ironpython3没运行成功，反而在控制台里看到pythonnet运行了，查下下才发现是pythonnet3.0.3的dll忘删了。[笑脸]
 
 事情就这么成了。全靠老天爷恩赐，感恩老天爷恩赐，[笑脸]
